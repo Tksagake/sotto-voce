@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.vivace.sottovoce.ui.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_search"
+        android:name="com.vivace.sottovoce.ui.SearchFragment"
+        android:label="Search"
+        tools:layout="@layout/fragment_search" />
+
+    <fragment
+        android:id="@+id/nav_library"
+        android:name="com.vivace.sottovoce.ui.LibraryFragment"
+        android:label="Library"
+        tools:layout="@layout/fragment_library" />
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="com.vivace.sottovoce.ui.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile" />
+    <fragment
+        android:id="@+id/nav_now_playing"
+        android:name="com.vivace.sottovoce.ui.NowPlayingFragment"
+        android:label="Now Playing"
+        tools:layout="@layout/fragment_now_playing" />
+</navigation>

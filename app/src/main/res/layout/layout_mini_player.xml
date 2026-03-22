@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:layout_marginHorizontal="8dp"
+    android:background="@drawable/bg_mini_player"
+    android:backgroundTint="#592020"> <com.google.android.material.imageview.ShapeableImageView
+    android:id="@+id/mini_art"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:layout_marginStart="8dp"
+    android:scaleType="centerCrop"
+    android:background="@color/surface_dark"
+    app:shapeAppearanceOverlay="@style/RoundedSquare"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintBottom_toBottomOf="parent" />
+
+    <TextView
+        android:id="@+id/mini_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:textColor="@color/text_primary"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:text="Karolina" app:layout_constraintStart_toEndOf="@id/mini_art"
+        app:layout_constraintEnd_toStartOf="@id/mini_devices"
+        app:layout_constraintTop_toTopOf="@id/mini_art"
+        app:layout_constraintBottom_toTopOf="@id/mini_artist"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <TextView
+        android:id="@+id/mini_artist"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:textColor="#B3FFFFFF"
+        android:textSize="12sp"
+        android:maxLines="1"
+        android:text="Awilo Longomba" app:layout_constraintStart_toEndOf="@id/mini_art"
+        app:layout_constraintEnd_toStartOf="@id/mini_devices"
+        app:layout_constraintTop_toBottomOf="@id/mini_title"
+        app:layout_constraintBottom_toBottomOf="@id/mini_art" />
+
+    <ImageView
+        android:id="@+id/mini_play"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginEnd="12dp"
+        android:src="@android:drawable/ic_media_play"
+        app:tint="@color/text_primary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <ImageView
+        android:id="@+id/mini_like"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="16dp"
+        android:src="@android:drawable/checkbox_on_background"
+        app:tint="@color/accent_green"
+        app:layout_constraintEnd_toStartOf="@id/mini_play"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <ImageView
+        android:id="@+id/mini_devices"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="16dp"
+        android:src="@android:drawable/ic_menu_share"
+        app:tint="@color/text_primary"
+        app:layout_constraintEnd_toStartOf="@id/mini_like"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
