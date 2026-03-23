@@ -1,21 +1,36 @@
 package com.vivace.sottovoce.ui
 
-import android.content.Intent
+import android.content.Context
 import android.os.Bundle
-import android.widget.Button
+import android.webkit.CookieManager
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import com.vivace.sottovoce.MainActivity
-import com.vivace.sottovoce.R
 
 class AuthActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_auth)
+        val webView = WebView(this)
+        setContentView(webView)
 
-        // When you tap Login, go to the Main layout
-        findViewById<Button>(R.id.auth_login_btn).setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
-            finish() // Destroys the login page so you can't hit 'back' to it
+        webView.settings.javaScriptEnabled = true
+        webView.settings.domStorageEnabled = true
+        webView.settings.userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/113.0.0.0 Safari/537.36"
+
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                val cookies = CookieManager.getInstance().getCookie(url) ?: ""
+
+                if (cookies.contains("SAPISID")) {
+                    getSharedPreferences("SottoVocePrefs", Context.MODE_PRIVATE)
+                        .edit().putString("YTM_COOKIES", cookies).apply()
+
+                    if (url?.contains("music.youtube.com") == true && !url.contains("login")) {
+                        finish() // This returns the user to the MainActivity waiting in the background
+                    }
+                }
+            }
         }
+        webView.loadUrl("https://accounts.google.com/ServiceLogin?service=youtube&continue=https://music.youtube.com")
     }
 }

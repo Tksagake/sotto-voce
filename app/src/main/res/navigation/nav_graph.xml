@@ -33,4 +33,15 @@
         android:name="com.vivace.sottovoce.ui.NowPlayingFragment"
         android:label="Now Playing"
         tools:layout="@layout/fragment_now_playing" />
+    <fragment
+        android:id="@+id/playlistDetailFragment"
+        android:name="com.vivace.sottovoce.ui.PlaylistDetailFragment"
+        android:label="PlaylistDetailFragment">
+        <argument
+            android:name="browseId"
+            app:argType="string" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+    </fragment>
 </navigation>

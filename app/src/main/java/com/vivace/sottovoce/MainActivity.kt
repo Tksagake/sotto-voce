@@ -1,43 +1,93 @@
 package com.vivace.sottovoce
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageButton
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.vivace.sottovoce.models.Track
+import com.vivace.sottovoce.ui.AuthActivity
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
+    private var player: ExoPlayer? = null
+    private var miniPlayerContainer: View? = null
+    private var miniPlayerTitle: TextView? = null
+    private var miniPlayerPlayBtn: ImageButton? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 1. CHECK FOR COOKIES BEFORE ANYTHING ELSE
+        val prefs = getSharedPreferences("SottoVocePrefs", Context.MODE_PRIVATE)
+        val cookies = prefs.getString("YTM_COOKIES", "") ?: ""
+
+        if (cookies.isEmpty()) {
+            startActivity(Intent(this, AuthActivity::class.java))
+            // We don't finish() here because we want the user to come BACK to this screen
+        }
+
         setContentView(R.layout.activity_main)
 
-        val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = navHostFragment.navController
-
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        val miniPlayer = findViewById<View>(R.id.mini_player_include)
-
-        bottomNav.setupWithNavController(navController)
-
-        // WHEN THEY TAP THE MINI PLAYER -> OPEN NOW PLAYING SCREEN
-        miniPlayer.setOnClickListener {
-            navController.navigate(R.id.nav_now_playing)
+        // 2. Setup Player
+        player = ExoPlayer.Builder(this).build().apply {
+            addListener(object : Player.Listener {
+                override fun onIsPlayingChanged(isPlaying: Boolean) {
+                    miniPlayerPlayBtn?.setImageResource(if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play)
+                }
+            })
         }
 
-        // LISTEN FOR PAGE CHANGES TO HIDE THE BOTTOM BARS
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            if (destination.id == R.id.nav_now_playing || destination.id == R.id.nav_profile) {
-                // Hide bars on Now Playing and Profile screens
-                bottomNav.visibility = View.GONE
-                miniPlayer.visibility = View.GONE
+        // 3. Setup UI
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+        navHostFragment?.let {
+            findViewById<BottomNavigationView>(R.id.bottom_navigation).setupWithNavController(it.navController)
+        }
+
+        miniPlayerContainer = findViewById(R.id.mini_player_container)
+        miniPlayerTitle = findViewById(R.id.mini_track_title)
+        miniPlayerPlayBtn = findViewById(R.id.btn_mini_play)
+
+        miniPlayerPlayBtn?.setOnClickListener {
+            player?.let { if (it.isPlaying) it.pause() else it.play() }
+        }
+    }
+
+    fun playTrack(track: Track) {
+        lifecycleScope.launch {
+            miniPlayerContainer?.visibility = View.VISIBLE
+            miniPlayerTitle?.text = track.title
+
+            val streamUrl = YtmClient(this@MainActivity).getStreamUrl(track.browseId)
+            if (streamUrl != null) {
+                val source = ProgressiveMediaSource.Factory(DefaultHttpDataSource.Factory()
+                    .setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) WebView/3.0"))
+                    .createMediaSource(MediaItem.fromUri(streamUrl))
+                player?.setMediaSource(source)
+                player?.prepare()
+                player?.play()
             } else {
-                // Show everywhere else
-                bottomNav.visibility = View.VISIBLE
-                miniPlayer.visibility = View.VISIBLE
+                Toast.makeText(this@MainActivity, "Heist blocked by Google.", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        player?.release()
+        player = null
     }
 }
