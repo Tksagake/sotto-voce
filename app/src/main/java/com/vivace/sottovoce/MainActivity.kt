@@ -31,18 +31,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 1. CHECK FOR COOKIES BEFORE ANYTHING ELSE
-        val prefs = getSharedPreferences("SottoVocePrefs", Context.MODE_PRIVATE)
-        val cookies = prefs.getString("YTM_COOKIES", "") ?: ""
-
-        if (cookies.isEmpty()) {
+        // 1. Vault Check - If empty, go to Login and PAUSE MainActivity
+        val cookies = getSharedPreferences("SottoVocePrefs", Context.MODE_PRIVATE).getString("YTM_COOKIES", "")
+        if (cookies.isNullOrEmpty()) {
             startActivity(Intent(this, AuthActivity::class.java))
-            // We don't finish() here because we want the user to come BACK to this screen
         }
 
         setContentView(R.layout.activity_main)
 
-        // 2. Setup Player
+        // 2. Setup Player & UI
         player = ExoPlayer.Builder(this).build().apply {
             addListener(object : Player.Listener {
                 override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -51,11 +48,8 @@ class MainActivity : AppCompatActivity() {
             })
         }
 
-        // 3. Setup UI
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
-        navHostFragment?.let {
-            findViewById<BottomNavigationView>(R.id.bottom_navigation).setupWithNavController(it.navController)
-        }
+        val navHost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+        navHost?.let { findViewById<BottomNavigationView>(R.id.bottom_navigation).setupWithNavController(it.navController) }
 
         miniPlayerContainer = findViewById(R.id.mini_player_container)
         miniPlayerTitle = findViewById(R.id.mini_track_title)
@@ -70,7 +64,6 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             miniPlayerContainer?.visibility = View.VISIBLE
             miniPlayerTitle?.text = track.title
-
             val streamUrl = YtmClient(this@MainActivity).getStreamUrl(track.browseId)
             if (streamUrl != null) {
                 val source = ProgressiveMediaSource.Factory(DefaultHttpDataSource.Factory()
